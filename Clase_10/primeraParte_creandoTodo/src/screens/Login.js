@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Pressable, Text, StyleSheet } from "react-native";
 import { View } from "react-native-web";
 import { TextInput } from "react-native-web";
+import { auth } from "../firebase/config";
 
 class Login extends Component (props) {
     
@@ -13,7 +14,29 @@ class Login extends Component (props) {
             }
         }
 
-        render() {
+        onSubmit(email, password) {
+                if (!email.includes("@")) {
+                this.setState({ error: "Email incompleto" });
+                return;
+                }
+                if (password.length < 6) {
+                this.setState({ error: "minimo 6" });
+                return;
+                }
+                auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    console.log("Login exitoso");
+                    this.props.navigation.navigate("HomeMenu"); 
+                })
+                .catch((error) => {
+                    console.log(error);
+                    this.setState({ error: "Credenciales incorrectas" })
+                }
+        );
+            }
+
+
+        render(){
             return (
             <View style={styles.general}>
                 <div style={styles.div}>
@@ -38,7 +61,7 @@ class Login extends Component (props) {
                                 onChangeText={text=>this.setState({contraseña:text})}
                                 value={this.state.contraseña}/>
                 
-                                <Pressable onSubmit={() => console.log(this.state.nombre, this.state.email, this.state.contraseña)}>
+                                <Pressable onSubmit={() => this.state.onSubmit(this.state.email, this.state.contraseña)}>
                                     <Text>ingresar</Text>
                                 </Pressable>
             </View>
